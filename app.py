@@ -70,12 +70,13 @@ def get_shipment_data() -> pd.DataFrame:
 def main() -> None:
     st.set_page_config(page_title="Indian Freight Shipments", page_icon="🚢", layout="wide")
 
-    st.title("Indian Freight Shipments")
-    st.caption("Real-time shipment tracking and cost analytics")
+    st.markdown("<h1 style='text-align: left; margin-bottom: 0rem; color: #1f4e79;'>🚢 Indian Freight Shipments</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='color: #666; font-size: 1rem; margin-bottom: 1.5rem;'>Real-time shipment tracking and cost analytics</p>", unsafe_allow_html=True)
 
     df = get_shipment_data()
 
-    st.sidebar.header("Filters")
+    st.sidebar.markdown("<h3 style='color: #1f4e79;'>🔍 Filters</h3>", unsafe_allow_html=True)
+    st.sidebar.markdown("---")
 
     mode_options = ["FCL", "LCL", "Air"]
     selected_modes = st.sidebar.multiselect("Mode", options=mode_options, default=mode_options)
@@ -97,13 +98,13 @@ def main() -> None:
     total_actual_cost = filtered_df["actual_cost_inr"].sum()
     delayed_shipments = (filtered_df["status"] == "Delayed").sum()
 
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Total Shipments", f"{total_shipments}")
-    col2.metric("Total Estimated Cost (INR)", f"{format_inr(total_estimated_cost)}")
-    col3.metric("Total Actual Cost (INR)", f"{format_inr(total_actual_cost)}")
-    col4.metric("Delayed Shipments", f"{delayed_shipments}")
+    col1, col2, col3, col4 = st.columns(4, gap="medium")
+    col1.metric("Total Shipments", total_shipments, help="Total number of shipments in current view")
+    col2.metric("Estimated Cost", f"₹ {format_inr(total_estimated_cost)}", help="Total estimated shipment cost")
+    col3.metric("Actual Cost", f"₹ {format_inr(total_actual_cost)}", help="Total actual shipment cost")
+    col4.metric("Delayed Shipments", delayed_shipments, help="Number of shipments with delayed status")
 
-    st.divider()
+    st.markdown("<h3 style='margin-top: 2rem; margin-bottom: 1.5rem; color: #1f4e79;'>📊 Analytics Overview</h3>", unsafe_allow_html=True)
 
     cost_by_carrier = (
         filtered_df.groupby("carrier", as_index=False)[["estimated_cost_inr", "actual_cost_inr"]]
@@ -136,6 +137,7 @@ def main() -> None:
         color_discrete_map={"Estimated Cost": "#1f4e79", "Actual Cost": "#2e8b57"},
         title="Estimated vs Actual Cost by Carrier",
     )
+    fig_cost.update_layout(hovermode="x unified", height=400, template="plotly_white")
 
     fig_mode = px.pie(
         mode_counts,
@@ -145,6 +147,7 @@ def main() -> None:
         color_discrete_map={"FCL": "#1f4e79", "LCL": "#4c78a8", "Air": "#2e8b57"},
         title="Shipments by Mode",
     )
+    fig_mode.update_layout(height=400, template="plotly_white")
 
     fig_status = px.bar(
         status_counts,
@@ -160,28 +163,39 @@ def main() -> None:
         },
         title="Shipment Count by Status",
     )
+    fig_status.update_layout(hovermode="x unified", height=400, template="plotly_white")
 
-    chart_col1, chart_col2, chart_col3 = st.columns(3)
-    chart_col1.plotly_chart(fig_cost, use_container_width=True)
-    chart_col2.plotly_chart(fig_mode, use_container_width=True)
-    chart_col3.plotly_chart(fig_status, use_container_width=True)
+    chart_col1, chart_col2, chart_col3 = st.columns(3, gap="medium")
+    with chart_col1:
+        st.plotly_chart(fig_cost, use_container_width=True, config={"displayModeBar": False})
+    with chart_col2:
+        st.plotly_chart(fig_mode, use_container_width=True, config={"displayModeBar": False})
+    with chart_col3:
+        st.plotly_chart(fig_status, use_container_width=True, config={"displayModeBar": False})
+
+    st.markdown("<h3 style='margin-top: 2rem; margin-bottom: 1.5rem; color: #1f4e79;'>📋 Shipment Details</h3>", unsafe_allow_html=True)
 
     def highlight_overruns(row: pd.Series) -> list[str]:
         overrun = row["actual_cost_inr"] > row["estimated_cost_inr"]
-        return ["background-color: #ffe6e6" if overrun else "" for _ in row]
+        return ["background-color: #fff3cd" if overrun else "" for _ in row]
 
     styled_filtered_df = filtered_df.style.apply(highlight_overruns, axis=1)
 
-    st.subheader("Filtered Shipment Data")
-    st.dataframe(styled_filtered_df, use_container_width=True)
+    st.dataframe(styled_filtered_df, use_container_width=True, height=400)
+    st.caption("⚠️ Yellow rows indicate cost overruns (Actual > Estimated)")
 
     csv_data = filtered_df.to_csv(index=False).encode("utf-8")
-    st.download_button(
-        label="Download Filtered Data as CSV",
-        data=csv_data,
-        file_name="filtered_shipments.csv",
-        mime="text/csv",
-    )
+    col_download, col_spacer = st.columns([2, 8])
+    with col_download:
+        st.download_button(
+            label="📥 Download as CSV",
+            data=csv_data,
+            file_name="filtered_shipments.csv",
+            mime="text/csv",
+            use_container_width=True,
+        )
+    st.markdown("---")
+    st.markdown("<p style='text-align: center; color: #999; font-size: 0.9rem; margin-top: 2rem;'>🚢 Indian Freight Dashboard | Real-time Tracking & Analytics</p>", unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
