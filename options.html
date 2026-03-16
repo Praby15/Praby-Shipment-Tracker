@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ApplyLens Settings</title>
+    <style>
+      :root {
+        --bg: #f4f8f5;
+        --card: #ffffff;
+        --text: #1d2b23;
+        --muted: #617266;
+        --accent: #146c43;
+        --border: #d6e4d8;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, sans-serif;
+        background: linear-gradient(180deg, #e7f1e8 0%, var(--bg) 100%);
+        color: var(--text);
+      }
+
+      .wrap {
+        max-width: 680px;
+        margin: 40px auto;
+        padding: 0 16px;
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 18px;
+        box-shadow: 0 14px 30px rgba(13, 45, 29, 0.08);
+      }
+
+      h1 {
+        margin: 0 0 6px;
+        font-size: 22px;
+      }
+
+      p {
+        margin: 0 0 16px;
+        color: var(--muted);
+      }
+
+      label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+
+      input {
+        width: 100%;
+        box-sizing: border-box;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        padding: 10px 12px;
+        font-size: 14px;
+      }
+
+      .actions {
+        margin-top: 12px;
+        display: flex;
+        gap: 10px;
+      }
+
+      button {
+        border: 0;
+        border-radius: 10px;
+        padding: 10px 14px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      #save {
+        background: var(--accent);
+        color: #fff;
+      }
+
+      #reset {
+        background: #edf4ee;
+        color: #173126;
+      }
+
+      #status {
+        margin-top: 12px;
+        min-height: 18px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="card">
+        <h1>ApplyLens Settings</h1>
+        <p>Enter your Gemini API key used for job analysis requests.</p>
+
+        <label for="geminiApiKey">Gemini API Key</label>
+        <input id="geminiApiKey" type="password" placeholder="AIza..." autocomplete="off" />
+
+        <div class="actions">
+          <button id="save" type="button">Save</button>
+          <button id="reset" type="button">Clear Key</button>
+        </div>
+
+        <div id="status"></div>
+      </div>
+    </div>
+
+    <script src="options.js"></script>
+  </body>
+</html>

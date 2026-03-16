@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ApplyLens</title>
+    <style>
+      :root {
+        --page: #f7f8fa;
+        --white: #ffffff;
+        --text: #1b1d22;
+        --muted: #6a7280;
+        --green: #1f9d55;
+        --yellow: #d59f10;
+        --red: #d64545;
+        --border: #e8ebf0;
+      }
+
+      body {
+        margin: 0;
+        width: 350px;
+        font-family: "Segoe UI", Tahoma, sans-serif;
+        background: var(--page);
+        color: var(--text);
+      }
+
+      .wrap {
+        padding: 14px;
+      }
+
+      .card {
+        background: var(--white);
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        box-shadow: 0 10px 22px rgba(17, 24, 39, 0.07);
+        padding: 16px;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      h1 {
+        font-size: 16px;
+        margin: 0;
+        letter-spacing: 0.2px;
+      }
+
+      .loading {
+        color: var(--muted);
+        font-size: 13px;
+        margin-top: 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .spinner {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: 2px solid #d7dce5;
+        border-top-color: #1f9d55;
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .result {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .status-circle {
+        width: 84px;
+        height: 84px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-weight: 700;
+        font-size: 23px;
+        color: #fff;
+        margin-top: 6px;
+        box-shadow: inset 0 -8px 16px rgba(0, 0, 0, 0.14);
+      }
+
+      .verdict {
+        margin-top: 10px;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .mode-badge {
+        margin-top: 8px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        color: #8a3d00;
+        background: #fff2e1;
+        border: 1px solid #ffd6ad;
+        border-radius: 999px;
+        padding: 4px 8px;
+      }
+
+      .reasons {
+        width: 100%;
+        margin: 12px 0 0;
+        padding-left: 18px;
+        color: #313741;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .reasons li {
+        margin-bottom: 6px;
+      }
+
+      .meta {
+        width: 100%;
+        margin-top: 4px;
+        font-size: 12px;
+        color: var(--muted);
+        text-align: center;
+      }
+
+      .row {
+        margin-top: 8px;
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      .link-btn {
+        border: 0;
+        background: transparent;
+        color: #4a5b73;
+        cursor: pointer;
+        font-size: 17px;
+        line-height: 1;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        padding: 0;
+      }
+
+      .link-btn:hover {
+        background: #eff2f7;
+      }
+
+      .error {
+        color: var(--red);
+        margin-top: 10px;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="card">
+        <div class="header">
+          <h1>ApplyLens</h1>
+          <button id="openSettings" class="link-btn" type="button" aria-label="Open settings" title="Settings">&#9881;</button>
+        </div>
+        <div id="loading" class="loading">
+          <div class="spinner" aria-hidden="true"></div>
+          <div id="loadingText">Reading this job post...</div>
+        </div>
+        <div id="result" class="result" hidden>
+          <div id="circle" class="status-circle">--</div>
+          <div id="verdict" class="verdict">Pending</div>
+          <div id="modeBadge" class="mode-badge" hidden>Fallback Mode</div>
+          <ul id="reasons" class="reasons">
+            <li>Analyzing job details...</li>
+            <li>Looking for role quality signals...</li>
+            <li>Checking for known red flags...</li>
+          </ul>
+          <div id="meta" class="meta"></div>
+        </div>
+        <div id="error" class="error" hidden></div>
+      </div>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>
