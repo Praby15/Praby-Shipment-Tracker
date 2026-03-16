@@ -1,6 +1,7 @@
 import pandas as pd
 import plotly.express as px
 import streamlit as st
+from anthropic import Anthropic
 
 
 def format_inr(value: float) -> str:
@@ -65,6 +66,35 @@ def get_shipment_data() -> pd.DataFrame:
     df["dispatch_date"] = pd.to_datetime(df["dispatch_date"])
     df["eta"] = pd.to_datetime(df["eta"])
     return df
+
+
+def ask_claude_about_shipments(question: str, filtered_df: pd.DataFrame) -> str:
+    api_key = st.secrets.get("ANTHROPIC_API_KEY")
+    if not api_key:
+        return "⚠️ Anthropic API key not configured. Add ANTHROPIC_API_KEY to Streamlit secrets."
+
+    client = Anthropic()
+
+    shipment_summary = filtered_df.to_string()
+
+    prompt = f"""You are a freight shipment analyst. A user has asked a question about their shipments.
+Here is the shipment data:
+
+{shipment_summary}
+
+User Question: {question}
+
+Provide a concise, actionable answer based on the shipment data. Focus on insights about costs, delays, carriers, and routes."""
+
+    try:
+        message = client.messages.create(
+            model="claude-3-5-sonnet-20241022",
+            max_tokens=500,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        return message.content[0].text
+    except Exception as e:
+        return f"❌ Error querying Claude: {str(e)}"
 
 
 def main() -> None:
@@ -183,6 +213,28 @@ def main() -> None:
 
     st.dataframe(styled_filtered_df, use_container_width=True, height=400)
     st.caption("⚠️ Yellow rows indicate cost overruns (Actual > Estimated)")
+
+    st.markdown("<h3 style='margin-top: 2rem; margin-bottom: 1.5rem; color: #1f4e79;'>🤖 AI Shipment Assistant</h3>", unsafe_allow_html=True)
+    st.markdown("Ask Claude AI questions about your shipments using natural language.")
+
+    col_question, col_ask = st.columns([5, 1])
+    with col_question:
+        user_question = st.text_input(
+            label="Ask a question about your shipments:",
+            placeholder="e.g., Which carriers have the most delayed shipments? What's the average cost overrun?",
+            label_visibility="collapsed",
+        )
+    with col_ask:
+        ask_button = st.button("🔍 Ask", use_container_width=True)
+
+    if ask_button and user_question:
+        with st.spinner("🤔 Claude is thinking..."):
+            response = ask_claude_about_shipments(user_question, filtered_df)
+        st.markdown("<div style='background-color: #f0f4ff; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #1f4e79;'>", unsafe_allow_html=True)
+        st.markdown(response)
+        st.markdown("</div>", unsafe_allow_html=True)
+    elif ask_button and not user_question:
+        st.warning("Please enter a question to ask Claude.")
 
     csv_data = filtered_df.to_csv(index=False).encode("utf-8")
     col_download, col_spacer = st.columns([2, 8])
